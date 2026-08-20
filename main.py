@@ -1,16 +1,33 @@
 import hashlib
 from pathlib import Path
 import sys
+from tkinter import Tk
+from tkinter import filedialog
 
-target_dir = Path("test_folder")
+DRY_RUN = False
+
+root = Tk()
+root.withdraw()
+tar_dir = filedialog.askdirectory(title="Select folder")
+if not tar_dir:
+    print("Folder not selected")
+    sys.exit()
+
+print("Folder selected: ", tar_dir)
+target_dir = Path(tar_dir)
+quarantine = target_dir / "duplicates"
 
 def main():
     if not target_dir.exists():
         print("Folder is not found")
         return
+
+    moved = 0
     
     by_size = {} 
     for item in target_dir.rglob("*"):
+        if item.is_relative_to(quarantine):
+            continue
         if item.is_file():
             size = item.stat().st_size
             by_size.setdefault(size, []).append(item)
@@ -23,7 +40,19 @@ def main():
 
             for digest, dup_group in by_hash.items():
                 if len(dup_group) > 1:
-                    print("Duplicates: ", [str(p.relative_to(target_dir)) for p in dup_group])
+                    for dup in dup_group[1:]:
+                        dest = quarantine / dup.relative_to(target_dir)
+                        if DRY_RUN:
+                            print("Would move: ", dup.relative_to(target_dir))
+                        else:
+                            dest.parent.mkdir(parents=True, exist_ok=True)
+                            dup.rename(dest)
+                        moved += 1
+
+    if DRY_RUN:
+        print("Dry run: nothing was moved. Would move: ", moved, " files")
+    else:
+        print("Moved: ", moved, " files to ", quarantine)
 
 def file_hash(path):
     h = hashlib.md5()
