@@ -1,4 +1,4 @@
-# DupClean
+# DupClean (RU)
 
 DupClean - утилита для поиска дубликатов файлов в выбранной папке
 и перемещения их в карантин для безопасной проверки и удаления.
@@ -42,6 +42,54 @@ DupClean - утилита для поиска дубликатов файлов 
 - только стандартная библиотека: `pathlib`, `hashlib`, `tkinter`, `sys`.
 
 ## Запуск
+
+```bash
+py main.py
+
+-------------------------------------------------------------------------
+
+# DupClean (EN)
+
+DupClean is a utility for finding duplicate files in a selected folder
+and moving them to quarantine for safe scanning and deletion.
+
+The program doesn't delete anything itself: duplicates are moved to the `duplicates/` folder, preserving their structure, where they can be safely
+viewed and deleted manually.
+
+## How it works
+
+The search is performed using a two-stage funnel:
+
+1. **By size.** Files with a unique size cannot have duplicates and are filtered out immediately, without being read.
+2. **By content (MD5 hash).** Files with a matching size
+are read in 1 MB chunks and receive a "fingerprint." Duplicates are
+only files with the same fingerprint.
+
+Thanks to the funnel, the program doesn't compare every file with every other
+and works quickly even on large folders.
+
+## Features
+
+- search for duplicates by size and content hash;
+- Select a folder to scan via a dialog;
+- DRY_RUN rehearsal mode: shows the plan without touching files;
+- Quarantine instead of deleting, preserving relative paths;
+- Quarantine is ignored on subsequent runs;
+- Count of moved files and the path to the quarantine.
+
+## Security
+
+- Never deletes files, only moves them;
+- One file in each duplicate group remains in place;
+- DRY_RUN mode for testing the plan before the actual run;
+- Quarantined files are not included in subsequent scans.
+
+## Requirements
+
+- Python 3.9+;
+- Only the standard library: pathlib, hashlib, tkinter, sys.
+
+## Launch
 
 ```bash
 py main.py
